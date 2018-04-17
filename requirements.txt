@@ -1,3 +1,5 @@
+boost==0.1
+boost-py==1.00
 absl-py==0.1.13
 alabaster==0.7.10
 astor==0.6.2
