@@ -1,18 +1,28 @@
-from flask import Flask
-from datetime import datetime
+from flask import Flask, render_template, Response
+from camera1 import VideoCamera
+
 app = Flask(__name__)
 
+frames_to_display = []
+counter = 1
+
+
 @app.route('/')
-def homepage():
-    the_time = datetime.now().strftime("%A, %d %b %Y %l:%M %p")
+def index():
+    return render_template('index.html')
 
-    return """
-    <h1>Hello heroku</h1>
-    <p>It is currently {time}.</p>
 
-    <img src="http://loremflickr.com/600/400" />
-    """.format(time=the_time)
+def gen(camera):
+    while True:
+        frame = camera.get_frame()
+        yield (b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + bytes(frame) + b'\r\n\r\n')
+
+
+@app.route('/video_feed')
+def video_feed():
+    return Response(gen(VideoCamera()), mimetype='multipart/x-mixed-replace; boundary=frame')
+
 
 if __name__ == '__main__':
-    app.run(debug=True, use_reloader=True)
 
+    app.run()
